@@ -1,5 +1,5 @@
 {
-  "name": "mineflayer-customlook",
+  "name": "@nxg-org/mineflayer-smooth-look",
   "version": "0.1.0",
   "description": "Interpolated looking for mineflayer",
   "main": "./lib/index.js",
