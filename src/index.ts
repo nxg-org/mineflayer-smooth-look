@@ -1,6 +1,6 @@
 import { Bot } from "mineflayer";
 import TWEEN, { Tween } from "@tweenjs/tween.js";
-import { CustomLook } from "./customLook";
+import { CustomLook } from "./smoothLook";
 
 declare module "mineflayer" {
     interface Bot {

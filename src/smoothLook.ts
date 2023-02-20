@@ -7,12 +7,12 @@ import * as THREE from "three";
 type EasingFunction = (amount: number) => number;
 
 export class CustomLook {
-    public readonly _currentlyLooking: boolean;
-    public _task: Tween<THREE.Euler> | null;
+    public readonly currentlyLooking: boolean;
+    private _task: Tween<THREE.Euler> | null;
     public easing: EasingFunction;
 
     constructor(private bot: Bot, public debug: boolean = false) {
-        this._currentlyLooking = false;
+        this.currentlyLooking = false;
         this.easing = TWEEN.Easing.Elastic.Out;
         this._task = null;
     }
