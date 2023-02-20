@@ -1,4 +1,4 @@
-# minfelayer-smooth-look
+# mineflayer-smooth-look
 
 
 ### Example:
