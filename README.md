@@ -17,6 +17,19 @@ bot.smoothLook.lookTowards(new Vec3(0, 0, 0) /* direction */)
 bot.smoothLook.look(yaw, pitch)
 ```
 
+
+
+### Notes:
+
+"Why is force default to true?"
+
+Well, The alternative is to append the latest tween to the list of tweens that have not completed yet. Naturally, most tweening will occur over the span than more than one tick. Yet someone will definitely look at an entity every tick. If force is false, the bot will take `duration * # of calls` to complete the look. If force is true, it will only take `duration` ms to complete.
+
+"Why is the default duration so long?"
+
+Some of the function intervals may vary wildly. For example, the default tween function I used is `TWEEN.Easing.Elastic.Out`, which snaps to the destination almost immediately (even with 1000ms given), only to overshoot -> re-adjust back to the destination for the rest of the 1000ms. Mileage will vary wildly depending on what easing function you use.
+
+
 ### API:
 
 
@@ -45,5 +58,4 @@ I highly recommend you look at those instead.
 - `force`: Whether or not to start the tween immediately, or after all others finish.
 
 
-### Notes:
-You may wonder why `force` on all of the look functions is defaulting to `true`. Well, The alternative is to append the latest tween to the list of tweens that have not completed yet. Naturally, most tweening will occur over the span than more than one tick. Yet someone will definitely look at an entity every tick. If force is false, the bot will take `duration * # of calls` to complete the look. If force is true, it will only take `duration` ms to complete.
+
