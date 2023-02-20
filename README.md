@@ -43,3 +43,7 @@ I highly recommend you look at those instead.
 - `pitch`: A number.
 - `duration`: The amount of time needed to complete the look.
 - `force`: Whether or not to start the tween immediately, or after all others finish.
+
+
+### Notes:
+You may wonder why `force` on all of the look functions is defaulting to `true`. Well, The alternative is to append the latest tween to the list of tweens that have not completed yet. Naturally, most tweening will occur over the span than more than one tick. Yet someone will definitely look at an entity every tick. If force is false, the bot will take `duration * # of calls` to complete the look. If force is true, it will only take `duration` ms to complete.
