@@ -21,7 +21,8 @@ bot.smoothLook.look(yaw, pitch)
 
 
 #### smoothLook.setEasing(func)
-- `func`: A function for interpolating movements. These are provided by `@tweenjs/tween.js`. I highly recommend you look at those instead.
+- `func`: A function for interpolating movements. These are provided by `@tweenjs/tween.js`. 
+I highly recommend you look at those instead.
 
 
 
