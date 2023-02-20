@@ -1,6 +1,6 @@
 import { Bot } from "mineflayer";
 import { Vec3 } from "vec3";
-import { dirToEuler, lookingAtEuler, targetEuler } from "./lookUtil";
+import { dirToEuler, lookingAtEuler, targetEuler, yawPitchToDir } from "./lookUtil";
 import TWEEN, { Tween } from "@tweenjs/tween.js";
 import * as THREE from "three";
 
@@ -88,7 +88,11 @@ export class CustomLook {
         }
     }
 
-    public async lookTowards(dir: Vec3, duration: number = 1000, force: boolean = false) {
+    public async look(yaw: number, pitch: number, duration: number = 1000, force: boolean = true) {
+        this.lookTowards(yawPitchToDir(yaw, pitch), duration, force);
+    }
+
+    public async lookTowards(dir: Vec3, duration: number = 1000, force: boolean = true) {
         const startRotation = lookingAtEuler(this.bot.entity.yaw, this.bot.entity.pitch);
         const endRotation = dirToEuler(dir);
         
@@ -107,7 +111,7 @@ export class CustomLook {
         }
     }
 
-    public async lookAt(target: Vec3, duration: number = 1000, force: boolean = false) {
+    public async lookAt(target: Vec3, duration: number = 1000, force: boolean = true) {
         const startRotation = lookingAtEuler(this.bot.entity.yaw, this.bot.entity.pitch);
         const endRotation = targetEuler(this.bot.entity.position.offset(0, this.bot.entity.height, 0), target);
         

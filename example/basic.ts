@@ -1,7 +1,7 @@
 import { Bot, createBot } from "mineflayer";
 import { loader } from "../src/index";
 import type { Entity } from "prismarine-entity";
-import { Tween } from "@tweenjs/tween.js";
+import utilPlugin from "@nxg-org/mineflayer-util-plugin";
 
 let bot: Bot;
 
@@ -13,6 +13,7 @@ bot = createBot({
 });
 
 bot.loadPlugin(loader);
+bot.loadPlugin(utilPlugin);
 
 const options = {
   attack: false,
@@ -26,7 +27,7 @@ bot.on("spawn", () => {
       case "look":
         target = bot.nearestEntity((e) => !!e.username?.startsWith(args[0]));
         if (!target) return bot.chat("didn't find target");
-        bot.customLook.lookAt(target.position, 150, true);
+        bot.smoothLook.lookAt(target.position, 150, true);
         break;
 
       case "attack":
@@ -48,7 +49,7 @@ async function attack(target: Entity) {
   let count = 0;
   while (options.attack) {
     // bot.lookAt(target.position.offset(0, 1, 0));
-    bot.customLook.lookAt(target.position.offset(0, 1, 0), 150, true);
+    bot.smoothLook.lookAt(target.position.offset(0, 1, 0), 150, true);
     count++;
     const flag0 = count > 4;
     const flag1 = bot.util.entity.eyeDistanceToEntity(target) < 3.5;
