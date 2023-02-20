@@ -12,7 +12,7 @@ const bot = createBot({...});
 bot.loadPlugin(loader);
 
 
-bot.smoothLook.lookAt(target /* entity */)
+bot.smoothLook.lookAt(target /* entity position */)
 bot.smoothLook.lookTowards(new Vec3(0, 0, 0) /* direction */)
 bot.smoothLook.look(yaw, pitch)
 ```
@@ -26,7 +26,8 @@ bot.smoothLook.look(yaw, pitch)
 
 
 ###### smoothLook.lookAt(target, duration = 1000, force = true)
-- `target`: A `prismarine-entity` instance, usually found from `bot.entities`.
+- `target`: A `Vec3` instance,  giving the location of whatever you want to look at.
+    - For entities: do `entity.position`
 - `duration`: The amount of time needed to complete the look.
 - `force`: Whether or not to start the tween immediately, or after all others finish.
 

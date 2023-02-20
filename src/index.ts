@@ -1,16 +1,16 @@
 import { Bot } from "mineflayer";
 import TWEEN, { Tween } from "@tweenjs/tween.js";
-import { CustomLook } from "./smoothLook";
+import { SmoothLook } from "./smoothLook";
 
 declare module "mineflayer" {
     interface Bot {
-        smoothLook: CustomLook;
+        smoothLook: SmoothLook;
     }
 }
 
 
 export function loader(bot: Bot) {
-    bot.smoothLook = new CustomLook(bot);
+    bot.smoothLook = new SmoothLook(bot);
     bot.on("physicsTick", () => {
         TWEEN.update()
     })

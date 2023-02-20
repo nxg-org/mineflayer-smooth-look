@@ -1,7 +1,6 @@
 import { Bot, createBot } from "mineflayer";
 import { loader } from "../src/index";
 import type { Entity } from "prismarine-entity";
-import utilPlugin from "@nxg-org/mineflayer-util-plugin";
 
 let bot: Bot;
 
@@ -13,7 +12,6 @@ bot = createBot({
 });
 
 bot.loadPlugin(loader);
-bot.loadPlugin(utilPlugin);
 
 const options = {
   attack: false,
@@ -52,7 +50,7 @@ async function attack(target: Entity) {
     bot.smoothLook.lookAt(target.position.offset(0, 1, 0), 150, true);
     count++;
     const flag0 = count > 4;
-    const flag1 = bot.util.entity.eyeDistanceToEntity(target) < 3.5;
+    const flag1 = bot.entity.position.distanceTo(target.position) < 3.5;
     const flag2 = (bot as any).entityAtCursor(3.5) === target;
     if (flag0 && flag1 && flag2) {
       bot.attack(target);

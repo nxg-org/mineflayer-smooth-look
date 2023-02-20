@@ -6,7 +6,7 @@ import * as THREE from "three";
 
 type EasingFunction = (amount: number) => number;
 
-export class CustomLook {
+export class SmoothLook {
     public readonly currentlyLooking: boolean;
     private _task: Tween<THREE.Euler> | null;
     public easing: EasingFunction;
