@@ -1,6 +1,6 @@
 {
   "name": "@nxg-org/mineflayer-smooth-look",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "Interpolated looking for mineflayer",
   "main": "./lib/index.js",
   "author": "GenerelSchwerz",
@@ -24,7 +24,6 @@
     "three": "^0.149.0"
   },
   "devDependencies": {
-    "@nxg-org/mineflayer-util-plugin": "^1.7.9",
     "mineflayer": "^4.8.1",
     "ts-node": "^10.9.1",
     "typescript": "^4.9.5"
