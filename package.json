@@ -1,15 +1,10 @@
 {
   "name": "mineflayer-customlook",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Interpolated looking for mineflayer",
   "main": "./lib/index.js",
   "author": "GenerelSchwerz",
   "license": "MIT",
-  "devDependencies": {
-    "mineflayer": "^4.8.1",
-    "ts-node": "^10.9.1",
-    "typescript": "^4.9.5"
-  },
   "scripts": {
     "build:commonjs": "tsc --target es5 --outDir lib --module commonjs --declaration",
     "build:es": "tsc --target es6 --outDir es --module es6",
@@ -24,9 +19,14 @@
   "types": "./lib/index.d.ts",
   "module": "./es/index.js",
   "dependencies": {
-    "@nxg-org/mineflayer-util-plugin": "^1.7.9",
     "@tweenjs/tween.js": "^18.6.4",
     "@types/three": "^0.149.0",
     "three": "^0.149.0"
+  },
+  "devDependencies": {
+    "@nxg-org/mineflayer-util-plugin": "^1.7.9",
+    "mineflayer": "^4.8.1",
+    "ts-node": "^10.9.1",
+    "typescript": "^4.9.5"
   }
 }
