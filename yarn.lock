@@ -41,11 +41,6 @@
     "@jridgewell/resolve-uri" "^3.0.3"
     "@jridgewell/sourcemap-codec" "^1.4.10"
 
-"@nxg-org/mineflayer-util-plugin@^1.7.9":
-  version "1.7.9"
-  resolved "https://registry.yarnpkg.com/@nxg-org/mineflayer-util-plugin/-/mineflayer-util-plugin-1.7.9.tgz#4f71b961cba215b54c4d7c9e0b02dc3e285d2bb2"
-  integrity sha512-KGniVUnJcUdYkIcTxBv86BJWZv2ykSWsrhC/TuVkj2FtdfYj5bo/oD3OQH6CFww1V36FDol9Xr6PmC5/DgzExw==
-
 "@tsconfig/node10@^1.0.7":
   version "1.0.9"
   resolved "https://registry.yarnpkg.com/@tsconfig/node10/-/node10-1.0.9.tgz#df4907fc07a886922637b15e02d4cebc4c0021b2"
@@ -363,15 +358,6 @@ minecraft-protocol@^1.40.3:
     uuid-1345 "^1.0.1"
     yggdrasil "^1.4.0"
 
-mineflayer-customlook@^0.1.0:
-  version "0.1.0"
-  resolved "https://registry.yarnpkg.com/mineflayer-customlook/-/mineflayer-customlook-0.1.0.tgz#19b84174a0b883a5e68dc69344dc4d2b2cbbcd67"
-  integrity sha512-nnTRtqBTy9omI327EtpSNjqu8ztdqTEiuXNKP6rR/C6nAKK4JTzg03+6Fojccz4mCm76pW9x2WRtBpYiZalcpg==
-  dependencies:
-    "@tweenjs/tween.js" "^18.6.4"
-    "@types/three" "^0.149.0"
-    three "^0.149.0"
-
 mineflayer@^4.8.1:
   version "4.8.1"
   resolved "https://registry.yarnpkg.com/mineflayer/-/mineflayer-4.8.1.tgz#65535e0a6e41a08a075ce85279be6cedc2cdf108"
@@ -642,9 +628,9 @@ safe-buffer@~5.1.1:
   integrity sha512-Gd2UZBJDkXlY7GbJxfsE8/nvKkUEU1G38c1siN6QP6a9PT9MmHB8GnpscSmMJSoF8LOIrt8ud/wPtojys4G6+g==
 
 semver@^7.3.8:
-  version "7.3.8"
-  resolved "https://registry.yarnpkg.com/semver/-/semver-7.3.8.tgz#07a78feafb3f7b32347d725e33de7e2a2df67798"
-  integrity sha512-NB1ctGL5rlHrPJtFDVIVzTyQylMLu9N9VICA6HSFJo8MCGVTMW6gfpicwKmmK/dAjTOrqu5l63JJOpDSrAis3A==
+  version "7.5.4"
+  resolved "https://registry.yarnpkg.com/semver/-/semver-7.5.4.tgz#483986ec4ed38e1c6c48c34894a9182dbff68a6e"
+  integrity sha512-1bCSESV6Pv+i21Hvpxp3Dx+pSD8lIPt8uVjRrxAUt/nbswYc+tK6Y2btiULjd4+fnq15PX+nqQDC7Oft7WkwcA==
   dependencies:
     lru-cache "^6.0.0"
 
