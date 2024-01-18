@@ -39,7 +39,7 @@ I highly recommend you look at those instead.
 
 
 
-###### smoothLook.lookAt(target, duration = 1000, force = true)
+##### smoothLook.lookAt(target, duration = 1000, force = true)
 - `target`: A `Vec3` instance,  giving the location of whatever you want to look at.
     - For entities: do `entity.position`
 - `duration`: The amount of time needed to complete the look.
@@ -59,4 +59,7 @@ I highly recommend you look at those instead.
 - `force`: Whether or not to start the tween immediately, or after all others finish.
 
 
+#### monkeyPatch(bot)
+- `bot`: The mineflayer bot.
+Monkey patches the bot's current look and lookAt to use the smoothLook plugin automatically.
 
