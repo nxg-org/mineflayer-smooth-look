@@ -15,3 +15,18 @@ export function loader(bot: Bot) {
         TWEEN.update()
     })
 }
+
+export function monkeyPatch(bot: Bot) {
+    if (!bot.smoothLook) {
+        console.warn('smoothLook was not loaded yet!');
+        loader(bot);
+    }
+
+    bot.lookAt = (point, force) => {
+        return bot.smoothLook.lookAt(point, undefined, true);
+    }
+
+    bot.look = (yaw, pitch, force) => {
+        return bot.smoothLook.look(yaw, pitch, undefined, true);
+    }
+}
