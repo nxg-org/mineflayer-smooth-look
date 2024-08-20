@@ -1,6 +1,6 @@
 {
   "name": "@nxg-org/mineflayer-smooth-look",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Interpolated looking for mineflayer",
   "main": "./lib/index.js",
   "author": "GenerelSchwerz",
