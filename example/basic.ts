@@ -2,9 +2,7 @@ import { Bot, createBot } from "mineflayer";
 import { loader } from "../src/index";
 import type { Entity } from "prismarine-entity";
 
-let bot: Bot;
-
-bot = createBot({
+const bot = createBot({
   host: "localhost",
   port: 25565,
   username: "lookTesting",
@@ -15,7 +13,9 @@ bot.loadPlugin(loader);
 
 const options = {
   attack: false,
+  run: false,
 };
+
 
 bot.on("spawn", () => {
   bot.on("chat", (user, message) => {
@@ -25,24 +25,30 @@ bot.on("spawn", () => {
       case "look":
         target = bot.nearestEntity((e) => !!e.username?.startsWith(args[0]));
         if (!target) return bot.chat("didn't find target");
-        bot.smoothLook.lookAt(target.position, 150, true);
+        bot.smoothLook.lookAt(target.position, 50, true);
+        // bot.lookAt(target.position, true)
         break;
 
       case "attack":
         target = bot.nearestEntity((e) => !!e.username?.startsWith(args[0]));
         if (!target) return bot.chat("didn't find target");
         options.attack = true;
+        options.run = true
         attack(target);
         break;
+      case "run":
+        options.run = !options.run;
+        break
 
       case "stopall":
         options.attack = false;
+        options.run = false;
         break;
     }
   });
 });
 
-async function attack(target: Entity) {
+async function attack(target: Entity, ) {
   if (!target) return;
   let count = 0;
   while (options.attack) {
@@ -57,6 +63,16 @@ async function attack(target: Entity) {
       count = 0;
     }
 
+    if (options.run) {
+      bot.setControlState("forward", true);
+      bot.setControlState("sprint", true);
+      bot.setControlState("jump", true);
+    }
+
     await bot.waitForTicks(1);
   }
+
+  bot.setControlState("forward", false);
+  bot.setControlState("sprint", false);
+  bot.setControlState("jump", false);
 }
