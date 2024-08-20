@@ -23,10 +23,10 @@ export function monkeyPatch(bot: Bot) {
     }
 
     bot.lookAt = (point, force) => {
-        return bot.smoothLook.lookAt(point, 1, true);
+        return bot.smoothLook.lookAt(point, true);
     }
 
     bot.look = (yaw, pitch, force) => {
-        return bot.smoothLook.look(yaw, pitch, 1, true);
+        return bot.smoothLook.look(yaw, pitch, true);
     }
 }

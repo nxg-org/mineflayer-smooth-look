@@ -6,131 +6,212 @@ import * as THREE from "three";
 
 type EasingFunction = (amount: number) => number;
 
+interface MoveTaskInfo {
+  dest: THREE.Euler;
+  closeEnoughDot: number;
+}
+
 export class SmoothLook {
-    public readonly currentlyLooking: boolean;
-    private _task: Tween<THREE.Euler> | null;
-    public easing: EasingFunction;
+  public readonly currentlyLooking: boolean;
+  private _pendingTask: MoveTaskInfo | null;
+  private _task: Tween<THREE.Euler> | null;
 
-    constructor(private bot: Bot, public debug: boolean = false) {
-        this.currentlyLooking = false;
-        this.easing = TWEEN.Easing.Elastic.Out;
-        this._task = null;
+  public goodEnoughDot: number = 0.9999;
+  public easing: EasingFunction;
+
+  constructor(private bot: Bot, public debug: boolean = false) {
+    this.currentlyLooking = false;
+    this.easing = TWEEN.Easing.Elastic.Out;
+    this._task = null;
+  }
+
+  public setEasing(func: EasingFunction) {
+    this.easing = func;
+  }
+
+  /**
+   * Wraps the euler so the walk from start to finish is clean,
+   * no snapback when neg to pos values.
+   */
+  private _wrapRotationEuler(start: THREE.Euler, dest: THREE.Euler) {
+    const startYaw = start.x;
+    let destYaw = dest.x;
+
+    const deltaYaw = destYaw - startYaw;
+
+    if (deltaYaw > Math.PI) {
+      destYaw -= 2 * Math.PI;
+    } else if (deltaYaw < -Math.PI) {
+      destYaw += 2 * Math.PI;
     }
 
-    public setEasing(func: EasingFunction) {
-        this.easing = func
-    }
+    dest.x = destYaw;
+    return dest;
+  }
 
-    /**
-     * Wraps the euler so the walk from start to finish is clean,
-     * no snapback when neg to pos values.
-     */
-    private _wrapRotationEuler(start: THREE.Euler, dest: THREE.Euler) {
-        if (Math.abs(start.x - dest.x) > Math.PI) dest.x = dest.x + 2 * Math.sign(start.x - dest.x) * Math.PI;
-        return dest;
-    }
+  /**
+   * Build custom Tween that interacts w/ the bot object
+   * and cleans itself up once finishing.
+   */
+  private _buildTask(start: THREE.Euler, dest: THREE.Euler, closeEnoughDot: number = this.goodEnoughDot) {
+    const duration = this.estimateTurnTime(dest.x, dest.y);
+    
+    return new TWEEN.Tween(start)
+      .to(dest, duration)
+      .easing(this.easing)
+      .onUpdate((current, elapsed) => {
+        this.bot.look(current.x, current.y, true);
 
-    /**
-     * Build custom Tween that interacts w/ the bot object
-     * and cleans itself up once finishing.
-     */
-    private _buildTask(start: THREE.Euler, dest: THREE.Euler, duration: number) {
-        return new TWEEN.Tween(start)
-            .to(dest, duration)
-            .easing(this.easing)
-            .onUpdate((current) => {
-                this.bot.look(current.x, current.y, true);
-            })
-            .onComplete((current) => {
-                if (this._task && (this._task as any)._chainedTweens.length === 0) {
-                    this._task = null;
-                }
-            });
-    }
+        const curVec3 = yawPitchToDir(current.x, current.y);
+        const destVec3 = yawPitchToDir(dest.x, dest.y);
+        const dot = curVec3.dot(destVec3);
 
-    /**
-     * Unused. Would clean up internal tasks.
-     */
-    private _cleanupTasks(chained: boolean = true) {
-        if (this._task) {
-            this._task.stop();
-            if (chained) this._task.stopChainedTweens();
-            this._task = null;
+        if (dot > closeEnoughDot) {
+          if (this._pendingTask) {
+            this._launchNextTaskFromCancel(this._pendingTask.dest, this._pendingTask.closeEnoughDot);
+          } else {
+            this._task?.stop();
+          }
         }
-    }
-
-    /**
-     * Used by force value. Cancel current task,
-     * then start on current tween value to wanted destination.
-     * This smoothly connects tweens (standard chaining is broken).
-     */
-    private _launchNextTaskFromCancel(dest: THREE.Euler, duration: number) {
-        if (this._task) {
-            this._task
-                .onStop((current) => {
-                    this._task = this._buildTask(current, this._wrapRotationEuler(current, dest), duration);
-                    this._task.start();
-                })
-                .stop();
+      })
+      .onComplete((current) => {
+        if (this._task && (this._task as any)._chainedTweens.length === 0) {
+          this._task = null;
         }
+      });
+  }
+
+  /**
+   * Unused. Would clean up internal tasks.
+   */
+  private _cleanupTasks(chained: boolean = true) {
+    if (this._task) {
+      this._task.stop();
+      if (chained) this._task.stopChainedTweens();
+      this._task = null;
+    }
+  }
+
+  /**
+   * Used by force value. Cancel current task,
+   * then start on current tween value to wanted destination.
+   * This smoothly connects tweens (standard chaining is broken).
+   */
+  private _launchNextTaskFromCancel(dest: THREE.Euler, closeEnoughDot: number = this.goodEnoughDot) {
+    if (this._task) {
+      this._task
+        .onStop((current) => {
+          this._task = this._buildTask(current, this._wrapRotationEuler(current, dest), closeEnoughDot);
+          this._task.start();
+
+          if (this._pendingTask) {
+            this._pendingTask = null;
+          }
+        })
+        .stop();
+    }
+  }
+
+  /**
+   * Used by non-force. Wait for current task to end,
+   * then begin new task from current position.
+   * This does not cancel the current task and overrides the initial custom task clear.
+   */
+  private eventuallyChain(dest: THREE.Euler, closeEnoughDot: number = this.goodEnoughDot) {
+    if (this._task) {
+      this._task.onComplete((current) => {
+        this._pendingTask = null;
+        this._task = this._buildTask(current, this._wrapRotationEuler(current, dest), closeEnoughDot).start();
+      });
+
+      this._pendingTask = { dest, closeEnoughDot };
+    }
+  }
+
+  /**
+   * Estimate the time it takes to turn to a certain yaw/pitch.
+   * This is used to determine the duration of the tween.
+   *
+   * @param yaw
+   * @param pitch
+   * @returns estimated time in ms
+   */
+  private estimateTurnTime(yaw: number, pitch: number) {
+    const curYaw = this.bot.entity.yaw;
+    const curPitch = this.bot.entity.pitch;
+
+    const yawDiff = Math.abs(curYaw - yaw);
+    const pitchDiff = Math.abs(curPitch - pitch);
+
+    // 50ms * bot's yaw/pitch diff
+    const maxDeltaYaw = 0.05 * this.bot.physics.yawSpeed;
+    const maxDeltaPitch = 0.05 * (this.bot.physics as any).pitchSpeed;
+
+    const yawTicks = yawDiff / maxDeltaYaw;
+    const pitchTicks = pitchDiff / maxDeltaPitch;
+
+    return Math.max(yawTicks, pitchTicks) * 20;
+  }
+
+  public async look(yaw: number, pitch: number, force: boolean = true, closeEnoughDot: number = this.goodEnoughDot) {
+    this.lookTowards(yawPitchToDir(yaw, pitch), force, closeEnoughDot);
+  }
+
+  public async lookTowards(dir: Vec3, force: boolean = true, closeEnoughDot: number = this.goodEnoughDot) {
+    const startRotation = lookingAtEuler(this.bot.entity.yaw, this.bot.entity.pitch);
+    const endRotation = dirToEuler(dir);
+
+    this._wrapRotationEuler(startRotation, endRotation);
+
+    if (this._task?.isPlaying() && !force) {
+      this._debug("task running + not forcing.", TWEEN.getAll().length, "tasks.");
+      this.eventuallyChain(endRotation, closeEnoughDot);
+    } else if ((this._task?.isPlaying() && force, closeEnoughDot)) {
+      this._debug("task running + forcing.", TWEEN.getAll().length, "tasks.");
+      this._launchNextTaskFromCancel(endRotation, closeEnoughDot);
+    } else if (!this._task?.isPlaying()) {
+      this._debug("task not running, making new.", TWEEN.getAll().length, "tasks.");
+      this._task = this._buildTask(startRotation, endRotation, closeEnoughDot);
+      this._task.start();
     }
 
-    /**
-     * Used by non-force. Wait for current task to end,
-     * then begin new task from current position.
-     * This does not cancel the current task and overrides the initial custom task clear.
-     */
-    private eventuallyChain(dest: THREE.Euler, duration: number) {
-        if (this._task) {
-            this._task.onComplete((current) => {
-                this._task = this._buildTask(current, this._wrapRotationEuler(current, dest), duration).start();
-            });
-        }
+    await new Promise<void>((resolve) => {
+        this._task?.onComplete(() => {
+          resolve();
+        }).onStop(() => {
+          resolve();
+        })
+      });
+  }
+
+  public async lookAt(target: Vec3, force: boolean = true, closeEnoughDot: number = this.goodEnoughDot) {
+    const startRotation = lookingAtEuler(this.bot.entity.yaw, this.bot.entity.pitch);
+    const endRotation = targetEuler(this.bot.entity.position.offset(0, this.bot.entity.height, 0), target);
+
+    this._wrapRotationEuler(startRotation, endRotation);
+
+    if (this._task?.isPlaying() && !force) {
+      this._debug("task running + not forcing.", TWEEN.getAll().length, "tasks.");
+      this.eventuallyChain(endRotation, closeEnoughDot);
+    } else if (this._task?.isPlaying() && force) {
+      this._debug("task running + forcing.", TWEEN.getAll().length, "tasks.");
+      this._launchNextTaskFromCancel(endRotation, closeEnoughDot);
+    } else if (!this._task?.isPlaying()) {
+      this._debug("task not running, making new.", TWEEN.getAll().length, "tasks.");
+      this._task = this._buildTask(startRotation, endRotation, closeEnoughDot);
+      this._task.start();
     }
 
-    public async look(yaw: number, pitch: number, duration: number = 1000, force: boolean = true) {
-        this.lookTowards(yawPitchToDir(yaw, pitch), duration, force);
-    }
+    await new Promise<void>((resolve) => {
+      this._task?.onComplete(() => {
+        resolve();
+      }).onStop(() => {
+        resolve();
+      })
+    });
+  }
 
-    public async lookTowards(dir: Vec3, duration: number = 1000, force: boolean = true) {
-        const startRotation = lookingAtEuler(this.bot.entity.yaw, this.bot.entity.pitch);
-        const endRotation = dirToEuler(dir);
-        
-        this._wrapRotationEuler(startRotation, endRotation);
-
-        if (this._task?.isPlaying() && !force) {
-            this._debug("task running + not forcing.", TWEEN.getAll().length, "tasks.");
-            this.eventuallyChain(endRotation, duration);
-        } else if (this._task?.isPlaying() && force) {
-            this._debug("task running + forcing.", TWEEN.getAll().length, "tasks.");
-            this._launchNextTaskFromCancel(endRotation, duration);
-        } else if (!this._task?.isPlaying()) {
-            this._debug("task not running, making new.", TWEEN.getAll().length, "tasks.");
-            this._task = this._buildTask(startRotation, endRotation, duration);
-            this._task.start();
-        }
-    }
-
-    public async lookAt(target: Vec3, duration: number = 1000, force: boolean = true) {
-        const startRotation = lookingAtEuler(this.bot.entity.yaw, this.bot.entity.pitch);
-        const endRotation = targetEuler(this.bot.entity.position.offset(0, this.bot.entity.height, 0), target);
-        
-        this._wrapRotationEuler(startRotation, endRotation);
-
-        if (this._task?.isPlaying() && !force) {
-            this._debug("task running + not forcing.", TWEEN.getAll().length, "tasks.");
-            this.eventuallyChain(endRotation, duration);
-        } else if (this._task?.isPlaying() && force) {
-            this._debug("task running + forcing.", TWEEN.getAll().length, "tasks.");
-            this._launchNextTaskFromCancel(endRotation, duration);
-        } else if (!this._task?.isPlaying()) {
-            this._debug("task not running, making new.", TWEEN.getAll().length, "tasks.");
-            this._task = this._buildTask(startRotation, endRotation, duration);
-            this._task.start();
-        }
-    }
-
-    private _debug(message?: any, ...optionalParams: any[]): void {
-        if (this.debug) console.log(message, ...optionalParams)
-    }
+  private _debug(message?: any, ...optionalParams: any[]): void {
+    if (this.debug) console.log(message, ...optionalParams);
+  }
 }

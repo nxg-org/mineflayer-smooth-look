@@ -2,6 +2,8 @@ import { Bot, createBot } from "mineflayer";
 import { loader } from "../src/index";
 import type { Entity } from "prismarine-entity";
 
+import TWEEN from "@tweenjs/tween.js";
+
 const bot = createBot({
   host: "localhost",
   port: 25565,
@@ -11,6 +13,8 @@ const bot = createBot({
 
 bot.loadPlugin(loader);
 
+
+
 const options = {
   attack: false,
   run: false,
@@ -18,22 +22,48 @@ const options = {
 
 
 bot.on("spawn", () => {
-  bot.on("chat", (user, message) => {
+  bot.smoothLook.setEasing(TWEEN.Easing.Quadratic.InOut);
+
+  (bot.physics as any).pitchSpeed = 3;
+  (bot.physics as any).yawSpeed = 3
+
+
+  bot.on("chat", async (user, message) => {
     const [cmd, ...args] = message.trim().split(" ");
     let target;
     switch (cmd) {
-      case "look":
+      case "info": {
+        bot.chat(`yaw: ${bot.entity.yaw} pitch: ${bot.entity.pitch}`)
+        break
+      }
+
+      case "look": {
         target = bot.nearestEntity((e) => !!e.username?.startsWith(args[0]));
         if (!target) return bot.chat("didn't find target");
-        bot.smoothLook.lookAt(target.position, 50, true);
-        // bot.lookAt(target.position, true)
+        const start = performance.now();
+        await bot.smoothLook.lookAt(target.position.offset(0, target.height, 0), true);
+        const end = performance.now();
+        bot.chat(`smoothLookAt took ${end - start}ms`)
         break;
+      }
+       
+
+      case "oldlook": {
+        target = bot.nearestEntity((e) => !!e.username?.startsWith(args[0]));
+        if (!target) return bot.chat("didn't find target");
+        const start = performance.now();
+        await bot.lookAt(target.position.offset(0, target.height, 0), false)
+        const end = performance.now();
+        bot.chat(`lookAt took ${end - start}ms`)
+        break
+      }
+      
 
       case "attack":
         target = bot.nearestEntity((e) => !!e.username?.startsWith(args[0]));
         if (!target) return bot.chat("didn't find target");
         options.attack = true;
-        options.run = true
+        // options.run = true
         attack(target);
         break;
       case "run":
@@ -51,9 +81,9 @@ bot.on("spawn", () => {
 async function attack(target: Entity, ) {
   if (!target) return;
   let count = 0;
-  while (options.attack) {
-    // bot.lookAt(target.position.offset(0, 1, 0));
-    bot.smoothLook.lookAt(target.position.offset(0, 1, 0), 150, true);
+  while (options.attack) {  
+    bot.smoothLook.lookAt(target.position.offset(0, 1, 0), true);
+ 
     count++;
     const flag0 = count > 4;
     const flag1 = bot.entity.position.distanceTo(target.position) < 3.5;
@@ -67,12 +97,12 @@ async function attack(target: Entity, ) {
       bot.setControlState("forward", true);
       bot.setControlState("sprint", true);
       bot.setControlState("jump", true);
+    } else {
+      bot.clearControlStates();
     }
 
     await bot.waitForTicks(1);
   }
 
-  bot.setControlState("forward", false);
-  bot.setControlState("sprint", false);
-  bot.setControlState("jump", false);
+  bot.clearControlStates();
 }
