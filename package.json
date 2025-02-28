@@ -6,18 +6,14 @@
   "author": "GenerelSchwerz",
   "license": "MIT",
   "scripts": {
-    "build:commonjs": "tsc --target es5 --outDir lib --module commonjs --declaration",
-    "build:es": "tsc --target es6 --outDir es --module es6",
-    "build": "npm run build:commonjs && npm run build:es",
-    "ts": "ts-node src/",
+    "build": "npx tsc",
+    "ts": "npx ts-node src/",
     "prepublishOnly": "npm run build"
   },
   "files": [
-    "es",
     "lib"
   ],
   "types": "./lib/index.d.ts",
-  "module": "./es/index.js",
   "dependencies": {
     "@tweenjs/tween.js": "^18.6.4",
     "@types/three": "^0.149.0",

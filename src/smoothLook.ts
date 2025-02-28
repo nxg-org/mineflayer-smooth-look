@@ -23,6 +23,7 @@ export class SmoothLook {
     this.currentlyLooking = false;
     this.easing = TWEEN.Easing.Elastic.Out;
     this._task = null;
+    this._pendingTask = null;
   }
 
   public setEasing(func: EasingFunction) {
@@ -166,7 +167,7 @@ export class SmoothLook {
     if (this._task?.isPlaying() && !force) {
       this._debug("task running + not forcing.", TWEEN.getAll().length, "tasks.");
       this.eventuallyChain(endRotation, closeEnoughDot);
-    } else if ((this._task?.isPlaying() && force, closeEnoughDot)) {
+    } else if (this._task?.isPlaying() && force) {
       this._debug("task running + forcing.", TWEEN.getAll().length, "tasks.");
       this._launchNextTaskFromCancel(endRotation, closeEnoughDot);
     } else if (!this._task?.isPlaying()) {
