@@ -4,7 +4,10 @@ import { Vec3 } from "vec3";
 
 export function lookingAtEuler(yaw: number, pitch: number) {
     // clamp yaw to -PI, PI
-    yaw = yaw % (2 * Math.PI);
+    yaw = (yaw + Math.PI) % (2 * Math.PI);
+    if (yaw < 0) yaw += 2 * Math.PI;  // Ensure the value is within the range [-π, π]
+    yaw -= Math.PI;  // Shift to the range [-π, π]
+
     return new THREE.Euler(yaw, pitch, 0);
 }
 
