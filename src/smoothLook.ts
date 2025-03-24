@@ -64,9 +64,6 @@ export class SmoothLook {
       .to(dest, duration)
       .easing(this.easing)
       .onUpdate((current, elapsed) => {
-        console.log('elapsed', elapsed, 'duration', duration  );
-        console.log('start', start.x, start.y)
-        console.log('current', current.x, current.y, 'dest', dest.x, dest.y)
         this.bot.look(current.x, current.y, true);
 
         const curVec3 = yawPitchToDir(current.x, current.y);

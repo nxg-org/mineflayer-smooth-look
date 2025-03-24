@@ -21,13 +21,13 @@ const options = {
 };
 
 bot.on("spawn", () => {
-  bot.smoothLook.setEasing(TWEEN.Easing.Linear.None);
-  // bot.smoothLook.setEasing(TWEEN.Easing.Quadratic.InOut);
-  bot.smoothLook.goodEnoughDot = 1;
+  // bot.smoothLook.setEasing(TWEEN.Easing.Linear.None);
+  bot.smoothLook.setEasing(TWEEN.Easing.Quadratic.InOut);
+  // bot.smoothLook.goodEnoughDot = 1;
   bot.smoothLook.debug = true;
 
-  (bot.physics as any).pitchSpeed = 2;
-  (bot.physics as any).yawSpeed = 2;
+  (bot.physics as any).pitchSpeed = 3;
+  (bot.physics as any).yawSpeed = 3;
 
   bot.on("chat", async (user, message) => {
     const [cmd, ...args] = message.trim().split(" ");
