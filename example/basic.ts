@@ -21,8 +21,8 @@ const options = {
 };
 
 bot.on("spawn", () => {
-  // bot.smoothLook.setEasing(TWEEN.Easing.Linear.None);
-  bot.smoothLook.setEasing(TWEEN.Easing.Quadratic.InOut);
+  bot.smoothLook.setEasing(TWEEN.Easing.Linear.None);
+  // bot.smoothLook.setEasing(TWEEN.Easing.Quadratic.InOut);
   bot.smoothLook.goodEnoughDot = 1;
   bot.smoothLook.debug = true;
 
@@ -86,12 +86,9 @@ async function attack(target: Entity, version: boolean) {
   bot.on('physicsTick', listener)
 
   while (options.attack && options.old === version) {
-    console.time("begin");  // Start the timer with the label "1"
-    // console.time('begin1')
 
     if (options.old) bot.lookAt(target.position.offset(0, 1, 0), true);
     else bot.smoothLook.lookAt(target.position.offset(0, 1, 0), true);
-    // bot.lookAt(target.position.offset(0, 1, 0), true);
 
     count++;
     const flag0 = count > 4;
