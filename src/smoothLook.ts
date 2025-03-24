@@ -134,8 +134,8 @@ export class SmoothLook {
   }
 
   private _beginTween = (tween: Tween<THREE.Euler>) => {
-    tween.start();
-    tween.update(TWEEN.now() + 50);
+    tween.start(TWEEN.now() - 50);
+    tween.update();
   }
 
   /**
