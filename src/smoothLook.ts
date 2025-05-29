@@ -3,13 +3,10 @@ import { Vec3 } from "vec3";
 import { dirToEuler, lookingAtEuler, targetEuler, yawPitchToDir } from "./lookUtil";
 import TWEEN, { Tween } from "@tweenjs/tween.js";
 import * as THREE from "three";
+import { EasingFunction, MoveTaskInfo } from "./types";
 
-type EasingFunction = (amount: number) => number;
 
-interface MoveTaskInfo {
-  dest: THREE.Euler;
-  closeEnoughDot: number;
-}
+
 
 export class SmoothLook {
   public readonly currentlyLooking: boolean;

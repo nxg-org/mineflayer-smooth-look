@@ -1,6 +1,10 @@
 import { Bot } from "mineflayer";
 import TWEEN, { Tween } from "@tweenjs/tween.js";
 import { SmoothLook } from "./smoothLook";
+import { StaticOptions } from "./types";
+
+
+
 
 declare module "mineflayer" {
     interface Bot {
@@ -8,6 +12,29 @@ declare module "mineflayer" {
     }
 }
 
+
+export function createPlugin(opts: StaticOptions) {
+    return (bot: Bot) => {
+        loader(bot);
+
+        if (opts.easingFunction) {
+            bot.smoothLook.setEasing(opts.easingFunction);
+        }   
+
+        if (opts.turnRateModifier) {
+            bot.physics.yawSpeed *= opts.turnRateModifier;
+            bot.physics.pitchSpeed *= opts.turnRateModifier;
+        }
+
+        if (opts.debug) {
+            bot.smoothLook.debug = opts.debug;
+        }
+
+        if (opts.goodEnoughDot) {
+            bot.smoothLook.goodEnoughDot = opts.goodEnoughDot;
+        }
+    }
+}
 
 export function loader(bot: Bot) {
     bot.smoothLook = new SmoothLook(bot);
