@@ -11,6 +11,11 @@ interface MoveTaskInfo {
   closeEnoughDot: number;
 }
 
+interface LookOptions {
+  speed?: number;
+  sleek?: boolean;
+}
+
 export class SmoothLook {
   public readonly currentlyLooking: boolean;
   private _pendingTask: MoveTaskInfo | null;
@@ -56,13 +61,12 @@ export class SmoothLook {
    * Build custom Tween that interacts w/ the bot object
    * and cleans itself up once finishing.
    */
-  private _buildTask(start: THREE.Euler, dest: THREE.Euler, closeEnoughDot: number = this.goodEnoughDot) {
-    const duration = this.estimateTurnTime(dest.x, dest.y);
- 
+  private _buildTask(start: THREE.Euler, dest: THREE.Euler, closeEnoughDot: number = this.goodEnoughDot, opts: LookOptions = {}) {
+    const duration = this.estimateTurnTime(dest.x, dest.y, opts);
 
     return new TWEEN.Tween(start)
       .to(dest, duration)
-      .easing(this.easing)
+      .easing(opts.sleek ? TWEEN.Easing.Cubic.Out : this.easing)
       .onUpdate((current, elapsed) => {
         this.bot.look(current.x, current.y, true);
 
@@ -144,9 +148,10 @@ export class SmoothLook {
    *
    * @param yaw
    * @param pitch
+   * @param opts optional look settings
    * @returns estimated time in ms
    */
-  private estimateTurnTime(yaw: number, pitch: number) {
+  private estimateTurnTime(yaw: number, pitch: number, opts: LookOptions = {}) {
     const curYaw = this.bot.entity.yaw;
     const curPitch = this.bot.entity.pitch;
 
@@ -160,30 +165,33 @@ export class SmoothLook {
     const yawTicks = yawDiff / maxDeltaYaw;
     const pitchTicks = pitchDiff / maxDeltaPitch;
 
-    return Math.max(yawTicks, pitchTicks) * 20;
+    let base = Math.max(yawTicks, pitchTicks) * 20;
+
+    if (opts.sleek) base *= 1.8;
+    if (opts.speed && opts.speed > 0) base *= opts.speed;
+
+    return base;
   }
 
-  public async look(yaw: number, pitch: number, force: boolean = true, closeEnoughDot: number = this.goodEnoughDot) {
-    this.lookTowards(yawPitchToDir(yaw, pitch), force, closeEnoughDot);
+  public async look(yaw: number, pitch: number, force: boolean = true, closeEnoughDot: number = this.goodEnoughDot, opts: LookOptions = {}) {
+    this.lookTowards(yawPitchToDir(yaw, pitch), force, closeEnoughDot, opts);
   }
 
-  public lookTowards(dir: Vec3, force: boolean = true, closeEnoughDot: number = this.goodEnoughDot) {
+  public lookTowards(dir: Vec3, force: boolean = true, closeEnoughDot: number = this.goodEnoughDot, opts: LookOptions = {}) {
     const startRotation = lookingAtEuler(this.bot.entity.yaw, this.bot.entity.pitch);
     const endRotation = dirToEuler(dir);
 
-    return this._lookHandler(startRotation, endRotation, force, closeEnoughDot);
+    return this._lookHandler(startRotation, endRotation, force, closeEnoughDot, opts);
   }
 
- 
-
-  public lookAt(target: Vec3, force: boolean = true, closeEnoughDot: number = this.goodEnoughDot) {
+  public lookAt(target: Vec3, force: boolean = true, closeEnoughDot: number = this.goodEnoughDot, opts: LookOptions = {}) {
     const startRotation = lookingAtEuler(this.bot.entity.yaw, this.bot.entity.pitch);
     const endRotation = targetEuler(this.bot.entity.position.offset(0, (this.bot.entity as any).eyeHeight, 0), target);
 
-    return this._lookHandler(startRotation, endRotation, force, closeEnoughDot);
+    return this._lookHandler(startRotation, endRotation, force, closeEnoughDot, opts);
   }
 
-  private async _lookHandler(startRotation: THREE.Euler, endRotation: THREE.Euler, force: boolean = true, closeEnoughDot: number = this.goodEnoughDot) {
+  private async _lookHandler(startRotation: THREE.Euler, endRotation: THREE.Euler, force: boolean = true, closeEnoughDot: number = this.goodEnoughDot, opts: LookOptions = {}) {
     this._wrapRotationEuler(startRotation, endRotation);
 
     if (this._task?.isPlaying() && !force) {
@@ -194,17 +202,17 @@ export class SmoothLook {
       this._launchNextTaskFromCancel(endRotation, closeEnoughDot);
     } else if (!this._task?.isPlaying()) {
       this._debug("task not running, making new.", TWEEN.getAll().length, "tasks.");
-      this._task = this._buildTask(startRotation, endRotation, closeEnoughDot);
+      this._task = this._buildTask(startRotation, endRotation, closeEnoughDot, opts);
       this._beginTween(this._task);
     }
 
     await new Promise<void>((resolve) => {
-        this._task?.onComplete(() => {
-          resolve();
-        }).onStop(() => {
-          resolve();
-        })
+      this._task?.onComplete(() => {
+        resolve();
+      }).onStop(() => {
+        resolve();
       });
+    });
   }
 
   private _debug(message?: any, ...optionalParams: any[]): void {
