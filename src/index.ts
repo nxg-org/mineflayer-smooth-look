@@ -12,7 +12,11 @@ declare module "mineflayer" {
     }
 }
 
-
+/**
+ * Utility function to create a plugin for mineflayer bots.
+ * 
+ * This can be used for easy access to settings on the bot, in case you want to customize things.
+ */
 export function createPlugin(opts: StaticOptions) {
     return (bot: Bot) => {
         loader(bot);
@@ -36,6 +40,10 @@ export function createPlugin(opts: StaticOptions) {
     }
 }
 
+/**
+ * Default loader function for the smoothLook plugin.
+ * @param bot The bot to load the smoothLook plugin on.
+ */
 export function loader(bot: Bot) {
     bot.smoothLook = new SmoothLook(bot);
     bot.on("physicsTick", () => {
