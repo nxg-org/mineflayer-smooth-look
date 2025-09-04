@@ -37,11 +37,11 @@ export class SmoothLook {
 
     if (this.monkeypatched) {
       this.bot.lookAt = (point, force) => {
-          return this.bot.smoothLook.lookAt(point, true);
+        return this.bot.smoothLook.lookAt(point, true);
       }
 
       this.bot.look = (yaw, pitch, force) => {
-          return this.bot.smoothLook.look(yaw, pitch, true);
+        return this.bot.smoothLook.look(yaw, pitch, true);
       }
     }
   }
@@ -85,7 +85,7 @@ export class SmoothLook {
    */
   private _buildTask(start: THREE.Euler, dest: THREE.Euler, closeEnoughDot: number = this.goodEnoughDot) {
     const duration = this.estimateTurnTime(dest.x, dest.y);
- 
+
 
     return new TWEEN.Tween(start)
       .to(dest, duration)
@@ -201,7 +201,7 @@ export class SmoothLook {
     return this._lookHandler(startRotation, endRotation, force, closeEnoughDot);
   }
 
- 
+
 
   public lookAt(target: Vec3, force: boolean = true, closeEnoughDot: number = this.goodEnoughDot) {
     const startRotation = lookingAtEuler(this.bot.entity.yaw, this.bot.entity.pitch);
@@ -226,12 +226,12 @@ export class SmoothLook {
     }
 
     await new Promise<void>((resolve) => {
-        this._task?.onComplete(() => {
-          resolve();
-        }).onStop(() => {
-          resolve();
-        })
-      });
+      this._task?.onComplete(() => {
+        resolve();
+      }).onStop(() => {
+        resolve();
+      })
+    });
   }
 
   private _debug(message?: any, ...optionalParams: any[]): void {
