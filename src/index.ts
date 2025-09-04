@@ -1,4 +1,4 @@
-import { Bot } from "mineflayer";
+import { Bot, BotOptions } from "mineflayer";
 import TWEEN, { Tween } from "@tweenjs/tween.js";
 import { SmoothLook } from "./smoothLook";
 import { StaticOptions } from "./types";
@@ -44,7 +44,7 @@ export function createPlugin(opts: StaticOptions) {
  * Default loader function for the smoothLook plugin.
  * @param bot The bot to load the smoothLook plugin on.
  */
-export function loader(bot: Bot, debug = false, _monkeyPatch = false) {
+export function _loader(bot: Bot, debug = false, _monkeyPatch = false) {
     if (bot.smoothLook) {
         console.warn('Unloading previous loaded smoothLook')
 
@@ -61,7 +61,11 @@ export function loader(bot: Bot, debug = false, _monkeyPatch = false) {
     })
 }
 
+export function loader(bot: Bot) {
+    _loader(bot);
+}
+
 // for backwards compatibility
-export function monkeyPatch(bot: Bot) {
-    loader(bot, true);
+export function monkeyPatch(bot: Bot, debug = false) {
+    _loader(bot, debug, true);
 }
