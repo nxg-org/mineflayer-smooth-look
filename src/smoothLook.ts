@@ -17,7 +17,8 @@ export class SmoothLook {
   public easing: EasingFunction;
 
 
-  private _internalLook!: Function;
+  private _internalLook!: Bot["look"];
+  private _lookAt!: Bot["lookAt"];
 
 
   constructor(private bot: Bot, public debug: boolean = false, public readonly monkeypatched = false) {
@@ -32,6 +33,8 @@ export class SmoothLook {
   // Moved monkeypatching functionality into this class.
   private ensureLook() {
     this._internalLook = this.bot.look
+    this._lookAt = this.bot.lookAt
+
     if (this.monkeypatched) {
       this.bot.lookAt = (point, force) => {
           return this.bot.smoothLook.lookAt(point, true);
@@ -40,6 +43,13 @@ export class SmoothLook {
       this.bot.look = (yaw, pitch, force) => {
           return this.bot.smoothLook.look(yaw, pitch, true);
       }
+    }
+  }
+
+  public release() {
+    if (this.monkeypatched) {
+      this.bot.look = this._internalLook;
+      this.bot.lookAt = this._lookAt
     }
   }
 
