@@ -47,7 +47,11 @@ export function createPlugin(opts: StaticOptions) {
 export function loader(bot: Bot, debug = false, _monkeyPatch = false) {
     if (bot.smoothLook) {
         console.warn('Unloading previous loaded smoothLook')
-        bot.smoothLook.release();
+
+        // older versions did not have this release
+        if (!!bot.smoothLook.release) {
+            bot.smoothLook.release();
+        }
     }
 
 
