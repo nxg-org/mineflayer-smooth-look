@@ -16,11 +16,31 @@ export class SmoothLook {
   public goodEnoughDot: number = 0.9999;
   public easing: EasingFunction;
 
-  constructor(private bot: Bot, public debug: boolean = false) {
+
+  private _internalLook!: Function;
+
+
+  constructor(private bot: Bot, public debug: boolean = false, public readonly monkeypatched = false) {
     this.currentlyLooking = false;
     this.easing = TWEEN.Easing.Elastic.Out;
     this._task = null;
     this._pendingTask = null;
+
+    this.ensureLook();
+  }
+
+  // Moved monkeypatching functionality into this class.
+  private ensureLook() {
+    this._internalLook = this.bot.look
+    if (this.monkeypatched) {
+      this.bot.lookAt = (point, force) => {
+          return this.bot.smoothLook.lookAt(point, true);
+      }
+
+      this.bot.look = (yaw, pitch, force) => {
+          return this.bot.smoothLook.look(yaw, pitch, true);
+      }
+    }
   }
 
   public setEasing(func: EasingFunction) {
@@ -61,7 +81,7 @@ export class SmoothLook {
       .to(dest, duration)
       .easing(this.easing)
       .onUpdate((current, elapsed) => {
-        this.bot.look(current.x, current.y, true);
+        this._internalLook(current.x, current.y, true);
 
         const curVec3 = yawPitchToDir(current.x, current.y);
         const destVec3 = yawPitchToDir(dest.x, dest.y);

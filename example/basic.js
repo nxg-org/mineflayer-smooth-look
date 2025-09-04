@@ -1,13 +1,13 @@
-import { Bot, createBot } from "mineflayer";
-import { createPlugin } from "../src/index";
+const{ Bot, createBot } = require( "mineflayer");
+const { createPlugin } = require( "../lib/index");
 
-import TWEEN from "@tweenjs/tween.js";
+const TWEEN = require( "@tweenjs/tween.js");
 
 const bot = createBot({
   host: process.argv[2],
   port: 25565,
   username: "lookTesting",
-  auth: "offline",
+  auth: "microsoft",
   version: "1.19.4",
 });
 

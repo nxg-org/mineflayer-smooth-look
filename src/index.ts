@@ -44,24 +44,17 @@ export function createPlugin(opts: StaticOptions) {
  * Default loader function for the smoothLook plugin.
  * @param bot The bot to load the smoothLook plugin on.
  */
-export function loader(bot: Bot) {
-    bot.smoothLook = new SmoothLook(bot);
+export function loader(bot: Bot, debug = false, _monkeyPatch = false) {
+    bot.smoothLook = new SmoothLook(bot, debug, _monkeyPatch);
     bot.on("physicsTick", () => {
         TWEEN.update()
     })
 }
 
+
 export function monkeyPatch(bot: Bot) {
-    if (!bot.smoothLook) {
-        console.warn('smoothLook was not loaded yet!');
-        loader(bot);
+    if (bot.smoothLook) {
+        throw 'Calling monkey patch and loading the plugin is no longer supported.'
     }
-
-    bot.lookAt = (point, force) => {
-        return bot.smoothLook.lookAt(point, true);
-    }
-
-    bot.look = (yaw, pitch, force) => {
-        return bot.smoothLook.look(yaw, pitch, true);
-    }
+    loader(bot, true);
 }
